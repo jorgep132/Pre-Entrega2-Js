@@ -28,8 +28,15 @@ if (nombre.toLowerCase() == "rulo19") {
 }
 
 // Ejecutamos el juego hasta que el usuario no quiera jugar más.
+let cantidadPartidas = 1
+let partidasGanadas = 0
+let partidasPerdidas = 0
+let empates = 0
+let winrate = 0
 blackjack();
-while (opcion == true) {
+while (opcion == true) { 
+  winrate = (partidasGanadas / cantidadPartidas) * 100
+  cantidadPartidas ++
   blackjack();
 }
 
@@ -44,14 +51,16 @@ function blackjack() {
 
 
   // Bucle para determinar si el jugador se pasó de 21 (lo que haría que pierda automáticamente) o para saber si quiere robar otra carta o "plantarse".
-  while (true && puntaje(manoJugador) < 21) {
+  while (puntaje(manoJugador) < 21) {
+    
     let opcion = confirm(
       nombre +
         ", tu mano actual es: " +
-        manoJugador +
+        mostrarCartas(manoJugador) +
         "\n Tu puntaje es: " +
         puntaje(manoJugador) +
-        '\nBanca inicial: ' + manoBanca[0] + '\n¿Querés robar otra carta'
+        '\nBanca inicial: ' + mostrarCartas([manoBanca[0]]) + '\n¿Querés robar otra carta?' + '\nPartidas: ' + cantidadPartidas +
+        '\nPartidas ganadas: ' + partidasGanadas + '\nPartidas perdidas: ' + partidasPerdidas + '\nEmpates: '+ empates + '\nWinrate: ' + winrate.toFixed(2) + '%'
     );
     if (opcion) {
       let nuevaCarta = repartirCartas();
@@ -71,12 +80,12 @@ function blackjack() {
   // Mostrando los resultados una vez finalizada la partida
   alert(
     "Robaste: " +
-      manoJugador +
+      mostrarCartas(manoJugador) +
       "\nTu puntaje fue de: " +
       puntaje(manoJugador) +
       "\n" +
       resultado(puntaje(manoJugador), puntaje(manoBanca)) +
-      '\nBanca: ' + manoBanca + '\nPuntaje total de la banca: ' + puntaje(manoBanca)
+      '\nBanca: ' + mostrarCartas(manoBanca) + '\nPuntaje total de la banca: ' + puntaje(manoBanca)
   );   
   opcion = confirm("¿Quéres jugar de vuelta?");
 }
@@ -86,10 +95,14 @@ function blackjack() {
 */
 function repartirCartas() {
   const CARTAS = [2, 3, 4, 5, 6, 7, 8, 9, "J", "Q", "K", "A"];
-  const PALOS = ['D', 'T', 'P', 'C']
+  const PALOS = ['♠', '♣', '♦', '♥']
   const carta = CARTAS[Math.floor(Math.random() * CARTAS.length)];
   const palo = PALOS[Math.floor(Math.random() * PALOS.length)];
   return {carta, palo}
+}
+
+function mostrarCartas(mano) {
+  return mano.map(carta => `${carta.carta}${carta.palo}`).join(', ');
 }
 
 /* Esta funcion suma el valor de las cartas en la mano, y también en la banca, para calcular quien gana o pierde.
@@ -132,17 +145,23 @@ function puntaje(mano) {
 */
 function resultado(puntajeJugador, puntajeBanca) {
   // Condicional para verificar si gana el jugador, la banca o si hay empate
-  if (puntajeJugador === 21 && puntajeBanca < 21){
+  if (puntajeJugador <= 21 && puntajeBanca < puntajeJugador){
+    partidasGanadas ++
     return "¡Ganaste, " + nombre + "!" + "\nPierde la Banca";
   }else if (puntajeJugador > 21) {
+    partidasPerdidas ++
     return "Te pasaste de 21, " + nombre + "\n¡Perdiste!";
   } else if (puntajeBanca > 21) {
+    partidasGanadas ++
     return "¡Ganaste, " + nombre + "!" + "\nPierde la Banca";
   } else if ((puntajeJugador > puntajeBanca) && (puntajeBanca > 21)) {
+    partidasGanadas ++
     return "¡Ganaste, " + nombre + "!" + "\nPierde la Banca";
   } else if (puntajeJugador < puntajeBanca) {
+    partidasPerdidas ++
     return "¡Perdiste, " + nombre + "!" + "\nGana la Banca";
   } else if (puntajeJugador == puntajeBanca) {
+    empates ++
     return "Empate!";
   }
 }
