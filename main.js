@@ -44,13 +44,13 @@ function blackjack() {
 
 
   // Bucle para determinar si el jugador se pasó de 21 (lo que haría que pierda automáticamente) o para saber si quiere robar otra carta o "plantarse".
-  while (true && puntaje(manoJugador[0][0][1][0]) < 21) {
+  while (true && puntaje(manoJugador) < 21) {
     let opcion = confirm(
       nombre +
         ", tu mano actual es: " +
         manoJugador +
         "\n Tu puntaje es: " +
-        puntaje(manoJugador[0][0][1][0]) +
+        puntaje(manoJugador) +
         '\nBanca inicial: ' + manoBanca[0] + '\n¿Querés robar otra carta'
     );
     if (opcion) {
@@ -64,7 +64,7 @@ function blackjack() {
   /* Bucle para determinar si la banca debe robar una carta o no. Por regla, en el Blackjack la banca no puede plantarse con un valor total menor a 17.
  Si el jugador perdió automáticamente (por pasarse de 21) no hace falta que la banca robe una tercera carta. En cambio, si el jugador se plantó y la banca tiene un valor menor a 17, debe robar por regla.
  */
-  while (puntaje(manoBanca[0][0][1][0]) < 17 && puntaje(manoJugador[0][0][1][0]) <= 21) {
+  while (puntaje(manoBanca) < 17 && puntaje(manoJugador) <= 21) {
     manoBanca.push(repartirCartas());
   }
 
@@ -73,10 +73,10 @@ function blackjack() {
     "Robaste: " +
       manoJugador +
       "\nTu puntaje fue de: " +
-      puntaje(manoJugador[0][0][1][0]) +
+      puntaje(manoJugador) +
       "\n" +
-      resultado(puntaje(manoJugador[0][0][1][0]), puntaje(manoBanca[0][0][1][0])) +
-      '\nBanca: ' + manoBanca + '\nPuntaje total de la banca: ' + puntaje(manoBanca[0][0][1][0])
+      resultado(puntaje(manoJugador), puntaje(manoBanca)) +
+      '\nBanca: ' + manoBanca + '\nPuntaje total de la banca: ' + puntaje(manoBanca)
   );   
   opcion = confirm("¿Quéres jugar de vuelta?");
 }
@@ -87,9 +87,9 @@ function blackjack() {
 function repartirCartas() {
   const CARTAS = [2, 3, 4, 5, 6, 7, 8, 9, "J", "Q", "K", "A"];
   const PALOS = ['D', 'T', 'P', 'C']
-  mezclarCartas = CARTAS[Math.floor(Math.random() * CARTAS.length)];
-  mezclarPalos = PALOS[Math.floor(Math.random() * PALOS.length)];
-  return [mezclarCartas, mezclarPalos]
+  const carta = CARTAS[Math.floor(Math.random() * CARTAS.length)];
+  const palo = PALOS[Math.floor(Math.random() * PALOS.length)];
+  return {carta, palo}
 }
 
 /* Esta funcion suma el valor de las cartas en la mano, y también en la banca, para calcular quien gana o pierde.
@@ -104,7 +104,7 @@ function puntaje(mano) {
     let carta = mano[i];
 
     // Condicional cambiar los valores de las cartas J,Q,K y A a su valor numérico correspondiente, siguiendo las reglas de blackjack.
-    switch (carta) {
+    switch (carta.carta) {
       case "J":
       case "Q":
       case "K":
@@ -118,7 +118,7 @@ function puntaje(mano) {
         }
         break;
       default:
-        puntuacion += parseInt(carta);
+        puntuacion += parseInt(carta.carta);
         break;
     }
   }
